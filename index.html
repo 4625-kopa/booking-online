@@ -1,63 +1,87 @@
-return;
-            }
-            
-            // Получаем дату и время
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Запись онлайн</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <h1>Запись онлайн</h1>
+    
+    <div id="user"></div>
+    
+    <h3>Выберите услугу:</h3>
+    <button onclick="selectService('стрижка')">Стрижка</button>
+    <button onclick="selectService('окрашивание')">Окрашивание</button>
+    <button onclick="selectService('укладка')">Укладка</button>
+    
+    <h3>Выберите дату:</h3>
+    <input type="date" id="date">
+    
+    <h3>Выберите время:</h3>
+    <select id="time">
+        <option value="09:00">09:00</option>
+        <option value="10:00">10:00</option>
+        <option value="11:00">11:00</option>
+        <option value="12:00">12:00</option>
+        <option value="13:00">13:00</option>
+        <option value="14:00">14:00</option>
+        <option value="15:00">15:00</option>
+        <option value="16:00">16:00</option>
+        <option value="17:00">17:00</option>
+        <option value="18:00">18:00</option>
+    </select>
+    
+    <br><br>
+    <button onclick="book()">Записаться</button>
+    
+    <p id="message"></p>
+
+    <script>
+        // Включаем Telegram
+        const tg = Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        
+        // Показываем пользователя
+        const user = tg.initDataUnsafe?.user;
+        if (user) {
+            document.getElementById('user').innerHTML = 
+                'Привет, ' + user.first_name + '!';
+        }
+        
+        // Выбранная услуга
+        let selectedService = '';
+        
+        function selectService(service) {
+            selectedService = service;
+            document.getElementById('message').innerHTML = 
+                'Выбрано: ' + service;
+        }
+        
+        function book() {
             const date = document.getElementById('date').value;
             const time = document.getElementById('time').value;
             
+            if (!selectedService) {
+                alert('Выберите услугу!');
+                return;
+            }
+            
             if (!date) {
-                showMessage('Выберите дату!', 'error');
+                alert('Выберите дату!');
                 return;
             }
-            
-            if (!time) {
-                showMessage('Выберите время!', 'error');
-                return;
-            }
-            
-            // Формируем данные для отправки
-            const bookingData = {
-                action: 'booking',
-                service: selectedService,
-                date: date,
-                time: time,
-                user_id: user?.id || 'guest',
-                user_name: user?.first_name || 'Гость',
-                timestamp: new Date().toISOString()
-            };
-            
-            // Показываем сообщение об успехе
-            showMessage('✓ Запись оформляется...', 'success');
-            
-            // Блокируем кнопку на время отправки
-            document.getElementById('bookingBtn').disabled = true;
             
             // Отправляем данные в бота
-            tg.sendData(JSON.stringify(bookingData));
+            const data = {
+                service: selectedService,
+                date: date,
+                time: time
+            };
             
-            // Закрываем приложение через небольшую задержку
-            setTimeout(() => {
-                tg.close();
-            }, 500);
+            tg.sendData(JSON.stringify(data));
         }
-        
-        // Функция показа сообщений
-        function showMessage(text, type) {
-            const messageDiv = document.getElementById('message');
-            messageDiv.textContent = text;
-            messageDiv.className = message ${type};
-            
-            // Автоматически скрываем через 3 секунды
-            setTimeout(() => {
-                messageDiv.style.display = 'none';
-            }, 3000);
-        }
-        
-        // Обработка ошибок
-        window.onerror = function(msg, url, line) {
-            console.log('Ошибка:', msg);
-            showMessage('Произошла ошибка, попробуйте снова', 'error');
-        };
     </script>
 </body>
 </html>

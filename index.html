@@ -81,4 +81,42 @@
         }
     </script>
 </body>
+    function send() {
+    const date = document.getElementById('date').value;
+    const time = document.getElementById('time').value;
+    
+    if (!service) {
+        document.getElementById('status').innerText = 'Выберите услугу';
+        return;
+    }
+    
+    if (!date) {
+        document.getElementById('status').innerText = 'Выберите дату';
+        return;
+    }
+    
+    const data = {
+        service: service,
+        date: date,
+        time: time
+    };
+    
+    document.getElementById('status').innerText = 'Отправка...';
+    
+    // Проверяем, есть ли Telegram API
+    if (typeof Telegram === 'undefined' || !Telegram.WebApp) {
+        document.getElementById('status').innerText = 'Ошибка: не в Telegram';
+        return;
+    }
+    
+    // Проверяем, можно ли отправлять данные
+    try {
+        console.log('Отправляем данные:', data);
+        Telegram.WebApp.sendData(JSON.stringify(data));
+        document.getElementById('status').innerText = 'Отправлено!';
+    } catch (e) {
+        document.getElementById('status').innerText = 'Ошибка отправки: ' + e.message;
+        console.error(e);
+    }
+}
 </html>

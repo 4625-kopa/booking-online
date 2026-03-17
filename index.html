@@ -2,114 +2,83 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Запись онлайн</title>
+    <title>Запись</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            padding: 20px;
-            max-width: 500px;
-            margin: 0 auto;
-            background: var(--tg-theme-bg-color, #fff);
-            color: var(--tg-theme-text-color, #000);
-        }
-        button {
-            background: var(--tg-theme-button-color, #40a7e3);
-            color: var(--tg-theme-button-text-color, #fff);
-            border: none;
-            padding: 12px 20px;
-            margin: 5px;
-            border-radius: 10px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button.service-btn {
-            background: transparent;
-            border: 2px solid var(--tg-theme-button-color, #40a7e3);
-            color: var(--tg-theme-button-color, #40a7e3);
-        }
-        button.service-btn.selected {
-            background: var(--tg-theme-button-color, #40a7e3);
-            color: var(--tg-theme-button-text-color, #fff);
-        }
-        input, select {
-            width: 100%;
-            padding: 12px;
-            margin: 5px 0 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        .book-btn {
-            width: 100%;
-            padding: 15px;
-            font-size: 18px;
-            margin-top: 20px;
-        }
-        #message {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-        }
-    </style>
 </head>
 <body>
-    <h1>📅 Онлайн запись</h1>
+    <h2>Запись онлайн</h2>
     
-    <div id="user" style="margin-bottom: 20px; padding: 10px; background: var(--tg-theme-secondary-bg-color, #f0f0f0); border-radius: 10px;"></div>
+    <p id="user">Загрузка...</p>
     
-    <h3>Выберите услугу:</h3>
-    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
-        <button class="service-btn" onclick="selectService('стрижка')" id="btn-стрижка">💇 Стрижка</button>
-        <button class="service-btn" onclick="selectService('окрашивание')" id="btn-окрашивание">🎨 Окрашивание</button>
-        <button class="service-btn" onclick="selectService('укладка')" id="btn-укладка">✨ Укладка</button>
-        <button class="service-btn" onclick="selectService('уход')" id="btn-уход">🧴 Уход</button>
-    </div>
+    <button onclick="choose('стрижка')">Стрижка</button>
+    <button onclick="choose('окрашивание')">Окрашивание</button>
+    <button onclick="choose('укладка')">Укладка</button>
     
-    <h3>Выберите дату:</h3>
-    <input type="date" id="date" required>
+    <p id="selected"></p>
     
-    <h3>Выберите время:</h3>
-    <select id="time" required>
-        <option value="">-- Выберите время --</option>
-        <option value="09:00">09:00</option>
+    <input type="date" id="date">
+    
+
+    
+    <select id="time">
         <option value="10:00">10:00</option>
         <option value="11:00">11:00</option>
         <option value="12:00">12:00</option>
-        <option value="13:00">13:00</option>
-        <option value="14:00">14:00</option>
-        <option value="15:00">15:00</option>
-        <option value="16:00">16:00</option>
-        <option value="17:00">17:00</option>
-        <option value="18:00">18:00</option>
     </select>
     
-    <button class="book-btn" onclick="book()">📝 Записаться</button>
     
-    <div id="message"></div>
+
+    <button onclick="send()">Записаться</button>
+    
+    <p id="status"></p>
 
     <script>
-        // Включаем Telegram
-        const tg = window.Telegram.WebApp;
+        // Telegram
+        const tg = Telegram.WebApp;
         tg.ready();
-        tg.expand();
         
-        // Показываем пользователя
+        // Пользователь
         const user = tg.initDataUnsafe?.user;
-        const userDiv = document.getElementById('user');
         if (user) {
-            userDiv.innerHTML = '👋 <strong>' + user.first_name + ' ' + (user.last_name || '') + '</strong>';
+            document.getElementById('user').innerText = 'Привет, ' + user.first_name;
         } else {
-            userDiv.innerHTML = '👋 Добро пожаловать!';
+            document.getElementById('user').innerText = 'Привет';
         }
         
-        // Выбранная услуга
-        let selectedService = '';
+        let service = '';
         
-        // Функция выбора услуги
-        function selectService(service) {
-            selectedService = service;
+        function choose(s) {
+            service = s;
+            document.getElementById('selected').innerText = 'Выбрано: ' + s;
+        }
+        
+        function send() {
+            const date = document.getElementById('date').value;
+            const time = document.getElementById('time').value;
             
-            // Убираем выделение со всех кнопок
-            document.queryS
+            if (!service) {
+                document.getElementById('status').innerText = 'Выберите услугу';
+                return;
+            }
+            
+            if (!date) {
+                document.getElementById('status').innerText = 'Выберите дату';
+                return;
+            }
+            
+            const data = {
+                service: service,
+                date: date,
+                time: time
+            };
+            
+            document.getElementById('status').innerText = 'Отправка...';
+            
+            // Отправляем
+            tg.sendData(JSON.stringify(data));
+            
+            document.getElementById('status').innerText = 'Отправлено!';
+        }
+    </script>
+</body>
+</html>
